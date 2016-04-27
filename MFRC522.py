@@ -113,8 +113,9 @@ class MFRC522:
     # GPIO.setmode(GPIO.BOARD)
     # GPIO.setup(22, GPIO.OUT)
     # GPIO.output(self.NRSTPD, 1)
+    self.spd = spd
     self.pi = pigpio.pi()
-    self.dev = self.pi.spi_open(2, spd, (1 << 8))
+    self.dev = self.pi.spi_open(2, self.spd, (1 << 8))
     self.pi.set_mode(26, pigpio.OUTPUT)
     self.pi.write(self.NRSTPD, 1)
     self.MFRC522_Init()
@@ -125,7 +126,7 @@ class MFRC522:
   def Write_MFRC522(self, addr, val):
     # Address format：0XXXXXX0
     self.pi.spi_xfer(self.dev, ((addr<<1)&0x7E, val))
-    
+
 
   def Read_MFRC522(self, addr):
     val, val2 = self.pi.spi_xfer(self.dev, (((addr<<1)&0x7E) | 0x80,0))
@@ -335,6 +336,7 @@ class MFRC522:
   def MFRC522_StopCrypto1(self):
     self.ClearBitMask(self.Status2Reg, 0x08)
     self.pi.spi_close(self.dev)
+    # self.dev = self.pi.spi_open(2, self.spd, (1 << 8))
 
   def MFRC522_Read(self, blockAddr):
     recvData = []

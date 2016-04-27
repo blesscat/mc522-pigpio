@@ -6,42 +6,29 @@ from PySide.QtGui import *
 from main_ui import Ui_MainWindow
 
 import function
-import pigpio
-
-pi = pigpio.pi()
 
 class transProcess(QThread):
     message = Signal(str)
 
-    def __init__(self, num, parent=None):  
-        super(transProcess,self).__init__(parent)  
+    def __init__(self, num, parent=None):
+        super(transProcess,self).__init__(parent)
         self.num = num
-  
-    def run(self):  
-        rf = function.RFID()
-        first_uid, first_sum = rf.read()
+
+    def run(self):
+        first_uid, first_sum = rfid.read()
         first_sum = first_sum - self.num
-        first_sum = struct.pack('8sq', '',first_sum)
-        first_sum = [ord(first_sum[i]) for i in range(16)]
-        rf = function.RFID()
-        rf.write(first_sum)
+        rfid.write(first_sum)
 
         self.message.emit('Put another card')
 
         while True:
-            rf = function.RFID()
-            second_uid, second_sum = rf.read()
-            self.msleep(100)
+            second_uid, second_sum = rfid.read()
+            self.msleep(500)
             if not second_uid == first_uid:
                 second_sum = second_sum + self.num
-                second_sum = struct.pack('8sq', '',second_sum)
-                second_sum = [ord(second_sum[i]) for i in range(16)]
-                rf = function.RFID()
-                rf.write(second_sum)
-                rf = function.RFID()
-                second_uid, second_sum = rf.read()
+                rfid.write(second_sum)
+                second_uid, second_sum = rfid.read()
                 self.message.emit('{:,}'.format(second_sum))
-                self.ring = Ring()
                 return 0
 
 
@@ -49,9 +36,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        
+        global rfid
+        rfid = function.RFID(4)
 
         self.operator = ''
         self.clear_flag = True
+        self.equGetDisplay_flag = False
+        self.num = 0
 
         self.b0.clicked.connect(lambda: self.insert_num('0'))
         self.b00.clicked.connect(lambda: self.insert_num('00'))
@@ -64,62 +56,63 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.b7.clicked.connect(lambda: self.insert_num('7'))
         self.b8.clicked.connect(lambda: self.insert_num('8'))
         self.b9.clicked.connect(lambda: self.insert_num('9'))
-        
+
         self.bread.clicked.connect(self.read)
         self.binit.clicked.connect(lambda: self.write(self.display.text()))
         self.btrans.clicked.connect(self.trans)
         self.bcls.clicked.connect(self.cls)
         self.bpls.clicked.connect(self.pls)
         self.bmns.clicked.connect(self.mns)
-        self.bequ.clicked.connect(self.equ)
-        self.bf2.clicked.connect(self.test)
+        self.bequ.clicked.connect(lambda: self.equ(self.display.text()))
+        # self.bf2.clicked.connect(self.test)
 
-        # self.setupUpdateThread()
-
-    def updateText(self,text):  
+    def updateText(self,text):
         self.display.clear()
         self.display.insert(text)
         self.clear_flag = True
-  
-    def trans(self):  
-        self.updateThread = transProcess(int(self.display.text().replace(',','')))  
-        #connect our update functoin to the progress signal of the update thread  
-        self.updateThread.message.connect(self.updateText,Qt.QueuedConnection)  
-        if not self.updateThread.isRunning():#if the thread has not been started let's kick it off  
-            self.updateThread.start()  
-    
-    def test(self):
-        self.ring = Ring()
-        
+
+    def trans(self):
+        self.updateThread = transProcess(int(self.display.text().replace(',','')))
+        #connect our update functoin to the progress signal of the update thread
+        self.updateThread.message.connect(self.updateText,Qt.QueuedConnection)
+        if not self.updateThread.isRunning():#if the thread has not been started let's kick it off
+            self.updateThread.start()
+
     def mns(self):
         self.operator = "mns"
         self.clear_flag = True
+        self.equGetDisplay_flag = True
 
     def pls(self):
         self.operator = "pls"
         self.clear_flag = True
+        self.equGetDisplay_flag = True
 
     def cls(self):
         self.display.clear()
         self.display.insert('0')
         self.clear_flag = True
 
-    def equ(self):
-        num = int(self.display.text().replace(',',''))
+    def equ(self, num):
+        self.num_pad.setEnabled(0)
+        if self.equGetDisplay_flag is True:
+            self.num = int(num.replace(',', ''))
         sum = self.read()
 
         if self.operator == "mns":
-            sum = sum - num
+            sum = sum - self.num
         elif self.operator == "pls":
-            sum = sum + num
+            sum = sum + self.num
 
         self.clear_flag = True
         self.write(sum)
         self.displayInsert(sum)
+        self.equGetDisplay_flag = False
+        self.num_pad.setEnabled(1)
 
     def displayInsert(self, data):
         if type(data) is not int:
-            data = int(data.replace(',',''))
+            data = int(data.replace(',', ''))
         self.display.clear()
         self.display.insert('{:,}'.format(data))
 
@@ -132,8 +125,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.displayInsert(data)
 
     def read(self):
-        rf = function.RFID()
-        uid, data = rf.read()
+        uid, data = rfid.read()
 
         if data == "Authentication error":
             self.display.clear()
@@ -142,33 +134,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.displayInsert(data)
         self.clear_flag = True
-        self.ring = Ring()
         return data
 
-    def write(self, input_data):
-        rf = function.RFID()
+    def write(self, data):
         try:
-            data = self.convertToHexList(input_data)
-            rf.write(data)
+            rfid.write(data)
         except ValueError:
             self.display.clear()
             self.display.insert("Error")
-
-    def convertToHexList(self, str_data):
-        hex_data = struct.pack('8sq', '',int(str(str_data).replace(',','')))
-        hex_data = [ord(hex_data[i]) for i in range(16)]
-        return hex_data
-
-
-class Ring(QThread):
-    def __init__(self,parent=None):  
-        super(Ring,self).__init__(parent)  
-        self.run()
-  
-    def run(self):  
-        pi.write(12, 1)
-        self.msleep(100)
-        pi.write(12, 0)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Wed Apr 20 13:51:13 2016
+# Created: Wed Apr 27 14:25:30 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,10 +23,11 @@ class Ui_MainWindow(object):
         font.setPointSize(24)
         self.exit.setFont(font)
         self.exit.setObjectName("exit")
-        self.widget = QtGui.QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(20, 100, 441, 511))
-        self.widget.setObjectName("widget")
-        self.gridLayoutWidget = QtGui.QWidget(self.widget)
+        self.num_pad = QtGui.QWidget(self.centralwidget)
+        self.num_pad.setEnabled(True)
+        self.num_pad.setGeometry(QtCore.QRect(20, 100, 441, 511))
+        self.num_pad.setObjectName("num_pad")
+        self.gridLayoutWidget = QtGui.QWidget(self.num_pad)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 10, 341, 501))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtGui.QGridLayout(self.gridLayoutWidget)
@@ -63,6 +64,8 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(36)
         self.b1.setFont(font)
+        self.b1.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.b1.setAutoRepeat(False)
         self.b1.setAutoRepeatInterval(100)
         self.b1.setObjectName("b1")
         self.gridLayout.addWidget(self.b1, 1, 0, 1, 1)
@@ -202,7 +205,7 @@ class Ui_MainWindow(object):
         self.binit.setFont(font)
         self.binit.setObjectName("binit")
         self.gridLayout.addWidget(self.binit, 0, 1, 1, 1)
-        self.verticalLayoutWidget = QtGui.QWidget(self.widget)
+        self.verticalLayoutWidget = QtGui.QWidget(self.num_pad)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(350, 10, 91, 501))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
