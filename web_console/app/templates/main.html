@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <link href='/static/css/style.css' rel='stylesheet'>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <title>FUN!</title>
+  </head>
+  <body>
+    <div>
+      <span class='subTopic'>Money</span>
+      <p id='lcd'></p>
+    </div>
+    <div>
+      <span class='subTopic'>Dices</span>
+      <p id='dice'></p> 
+    </div>
+    <div>
+      <span class='subTopic'>Attributes</span>
+      <table class='hori_table_frame'>
+        <tr> <td>Attr0: </td> <td id='attr0'></td> </tr>
+        <tr> <td>Attr1: </td> <td id='attr1'></td> </tr>
+        <tr> <td>Attr2: </td> <td id='attr2'></td> </tr>
+        <tr> <td>Attr3: </td> <td id='attr3'></td> </tr>
+        <tr> <td>Attr4: </td> <td id='attr4'></td> </tr>
+        <tr> <td>Attr5: </td> <td id='attr5'></td> </tr>
+    </div>
+      </table>
+  </body>
+</html>
+<script>
+  $(document).ready(function(){
+  });
+    function reflash() {
+      $.getJSON("/reflash", function(result) {
+        $('#lcd').text(result.lcd);
+        $('#dice').text(result.dice);
+        $('#attr0').text(result.attr[0]);
+        $('#attr1').text(result.attr[1]);
+        $('#attr2').text(result.attr[2]);
+        $('#attr3').text(result.attr[3]);
+        $('#attr4').text(result.attr[4]);
+        $('#attr5').text(result.attr[5]);
+      });
+      setTimeout("reflash()", 500);
+    }
+    reflash();
+
+</script>
