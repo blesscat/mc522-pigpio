@@ -35,12 +35,15 @@
       $.getJSON("/reflash", function(result) {
         $('#lcd').text(result.lcd);
         $('#dice').text(result.dice);
-        $('#attr0').text(result.attr[0]);
-        $('#attr1').text(result.attr[1]);
-        $('#attr2').text(result.attr[2]);
-        $('#attr3').text(result.attr[3]);
-        $('#attr4').text(result.attr[4]);
-        $('#attr5').text(result.attr[5]);
+        var split = result.attr.split(" ");
+        console.log(split);
+
+        $('#attr0').text(split[0]);
+        $('#attr1').text(split[1]);
+        $('#attr2').text(split[2]);
+        $('#attr3').text(split[3]);
+        $('#attr4').text(split[4]);
+        $('#attr5').text(split[5]);
       });
       setTimeout("reflash()", 500);
     }

@@ -1,9 +1,9 @@
-# import os
+import os
 # import mimetypes
 
 from flask import Flask
 # from flask.ext.login import LoginManager
-# from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy
 
 # mimetypes.add_type('image/svg+xml', '.svg'# )
 
@@ -16,15 +16,16 @@ app.config['SECRET_KEY'] = 'blesscat-Web-Console-SecretKey'
 # login_manager.init_app(app)
 
 # ===================SQLAlchemy=======================================================
-# track_modifications = app.config.setdefault(
-#    'SQLALCHEMY_TRACK_MODIFICATIONS', True)
-# basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/app.db'
-# app.config['SQLALCHEMY_BINDS'] = {
-#    'status': 'sqlite:///' + os.path.join(basedir, 'status.db')
-# }
-# db = SQLAlchemy(app)
+track_modifications = app.config.setdefault(
+   'SQLALCHEMY_TRACK_MODIFICATIONS', True)
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/app.db'
+db = SQLAlchemy(app)
 
+from app import views, models, functions
 
+# ===============start data_pipe thrad================================================
+s = functions.data_pipe()
+s.setDaemon(True)
+s.start()
 
-from app import views

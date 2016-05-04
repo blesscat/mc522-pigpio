@@ -114,8 +114,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         global rfid, attr_rfid, web
         rfid = function.RFID(4)
         attr_rfid = function.RFID(5)
-        web = function.sendto_web('127.0.0.1', 9999)
-        # web = function.sendto_web('192.168.0.192', 21000)
+        web = function.sendto_web('/tmp/uds_sock')
 
         global attr1_lcd, attr2_lcd, attr3_lcd, attr4_lcd, attr5_lcd, attr6_lcd
         attr1_lcd = self.attr1_lcd

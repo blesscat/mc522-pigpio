@@ -129,13 +129,12 @@ class RFID_function():
 
 
 class sendto_web():
-    def __init__(self, udp_ip, udp_port):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.ip = udp_ip
-        self.port = udp_port
+    def __init__(self, server):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.server = server
 
     def send(self, message):
-        self.sock.sendto(str(message), (self.ip, self.port))
+        self.sock.sendto(str(message), self.server)
         
 
 class pass_message(threading.Thread):

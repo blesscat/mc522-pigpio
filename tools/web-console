@@ -1,0 +1,44 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          MLiS
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: uWSGI server instance configured to serve web-console
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:~/mc522/web_console
+DEAMON=/usr/local/bin/uwsgi
+NAME=uwsgi
+DESC=web-console
+DEAMON_OPTS="--ini /opt/mlis/web_console/app.ini"
+
+case "$1" in
+	start)
+		if [ -z "$(/bin/pidof $NAME)" ]; then 
+			echo "Starting $DESC."
+		        start-stop-daemon --start --quiet --background --exec $DEAMON -- $DEAMON_OPTS 
+		else 
+			echo "$DESC is running."
+		fi
+		;;
+	stop)
+		echo "Stopping $DESC."
+	        start-stop-daemon --stop --quiet --name $NAME
+		;;
+	restart|force-reload)
+		echo -n "Restarting $DESC: "	
+	        start-stop-daemon --stop --quiet --name $NAME
+		sleep 1
+		start-stop-daemon --start --quiet --background --exec $DEAMON -- $DEAMON_OPTS
+		echo "Done."
+		;;
+	*)
+	        N=/etc/init.d/$DESC                                         
+		echo "Usage: $N {start|stop|restart|force-reload}" >&2      
+		exit 1                                                      
+	        ;;                                                          
+esac        
+
+exit 0
